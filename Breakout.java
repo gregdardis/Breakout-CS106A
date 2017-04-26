@@ -57,8 +57,6 @@ public class Breakout extends GraphicsProgram {
 	/** Number of turns */
 		private static final int N_OF_TURNS = 3;
 		
-		
-		
 		/* Finds the x value of the top left corner of the first brick so the bricks
 		 * can be drawn centered in the application window in method "createRowsOfBricks()"
 		 */
