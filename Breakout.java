@@ -122,6 +122,7 @@ public class Breakout extends GraphicsProgram {
 				}
 			}
 		}
+		
 		/* Gets the x coordinate for the starting position of the paddle */
 		private int getXForPaddle() {
 			int x = 0;
@@ -165,13 +166,8 @@ public class Breakout extends GraphicsProgram {
 			initializeMouse();
 		}
 		
-//		public void mouseDragged(MouseEvent mouse, GObject paddle) {
-//			lastX = mouse.getX();
-//			paddle = getElementAt(lastX, getYForPaddle());
-//		}
-		
 //		private void playGame() {
-//			addMouseListeners();
+		
 //		}
 		
 		/* Prepares the mouse to control the paddle, paddle is set to middle of the paddle's location */
@@ -197,6 +193,7 @@ public class Breakout extends GraphicsProgram {
 	}
 
 //	 TODO: GET MOUSE MOVING THE PADDLE
+
 /*Notes from lectures:
  * To see if the ball hit a brick, call getElementAt(location of brick? or ball or something?
  * and if it doesn't return null it means there is a brick there. It will return a GRect object
