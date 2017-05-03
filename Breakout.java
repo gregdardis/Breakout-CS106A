@@ -55,7 +55,7 @@ public class Breakout extends GraphicsProgram {
 		private static final int BALL_SPEED = 1;
 		
 	/** Pause time for the ball */
-		private static final int BALL_PAUSE_TIME = 4;
+		private static final int BALL_PAUSE_TIME = 7;
 
 	/** Offset of the top brick row from the top */
 		private static final int BRICK_Y_OFFSET = 70;
@@ -278,26 +278,26 @@ public class Breakout extends GraphicsProgram {
 		 * and the angle of incidence = angle of reflection */
 		private void checkBrickCollision() {
 			/* finding all of the points around the ball on 4 sides, going clockwise starting at top left */
-			double x1 = ball.getX();
-			double y1 = ball.getY();
+			double topLeftX = ball.getX();
+			double topLeftY = ball.getY();
 			
-			double x2 = ball.getX() + (BALL_DIAMETER);
-			double y2 = ball.getY();
+			double topRightX = ball.getX() + (BALL_DIAMETER);
+			double topRightY = ball.getY();
 			
-			double x3 = ball.getX() + (BALL_DIAMETER);
-			double y3 = ball.getY() + (BALL_DIAMETER);	
+			double bottomRightX = ball.getX() + (BALL_DIAMETER);
+			double bottomRightY = ball.getY() + (BALL_DIAMETER);	
 			
-			double x4 = ball.getX();
-			double y4 = ball.getY() + (BALL_DIAMETER);
+			double bottomLeftX = ball.getX();
+			double bottomLeftY = ball.getY() + (BALL_DIAMETER);
 			
 			/* Checks each corner of the ball in turn to see if it collided with an object*/
-			GObject collidingObject = getCollidingObject(x1, y1);
+			GObject collidingObject = getCollidingObject(topLeftX, topLeftY);
 			if (collidingObject == null) {
-				collidingObject = getCollidingObject(x2, y2);
+				collidingObject = getCollidingObject(topRightX, topRightY);
 				if (collidingObject == null) {
-					collidingObject = getCollidingObject(x3, y3);
+					collidingObject = getCollidingObject(bottomRightX, bottomRightY);
 					if (collidingObject == null) {
-						collidingObject = getCollidingObject(x4, y4);
+						collidingObject = getCollidingObject(bottomLeftX, bottomLeftY);
 					}
 				}
 			}
@@ -307,7 +307,12 @@ public class Breakout extends GraphicsProgram {
 			 * Walls do not count as objects */
 			if (collidingObject != null) {
 				if (collidingObject == paddle) {
-					vy = -vy;
+					if (bottomLeftY <= (APPLICATION_HEIGHT - PADDLE_Y_OFFSET - PADDLE_HEIGHT) || bottomRightY <= (APPLICATION_HEIGHT - PADDLE_Y_OFFSET - PADDLE_HEIGHT)) {
+						vy = -vy;
+					}
+					else {
+						vx = -vx;
+					}
 				}
 				else {
 					vy = -vy;
@@ -318,8 +323,17 @@ public class Breakout extends GraphicsProgram {
 					}
 				}
 			}
-			
 		}
+		
+		/* checks a point with (x, y) coordinates and if there is an object there, returns that object.
+		 * otherwise, returns null */ 
+		private GObject getCollidingObject(double x, double y) {
+			if (getElementAt(x, y) != null) {
+				return getElementAt(x, y);
+			}
+			else return null;
+		}
+		
 		/* Method that's called when you clear all the bricks */
 		private void youWinScreen() {
 			GLabel youWin = new GLabel("You win!");
@@ -331,16 +345,6 @@ public class Breakout extends GraphicsProgram {
 			System.exit(0);
 		}
 		
-		
-		/* checks a point with (x, y) coordinates and if there is an object there, returns that object.
-		 * otherwise, returns null */ 
-		private GObject getCollidingObject(double x, double y) {
-			if (getElementAt(x, y) != null) {
-				return getElementAt(x, y);
-			}
-			else return null;
-		}
-		
 		/* Sets up the game */
 		private void setUpGame() {
 			createRowsOfBricks();
@@ -350,20 +354,26 @@ public class Breakout extends GraphicsProgram {
 		
 		/* Plays the game */
 		private void playGame() {
+			/* Boolean added to make the if statement below only happen one time, each time they miss the ball
+			 * and the round needs to be started again */
+			boolean roundReset = false;
+			boolean labelVisible = true;
+			GLabel clickMessage = null;
 			while(true) {
-				boolean roundReset = false;
-//				System.out.println(failCounter);
-//				System.out.println("looping this shit?");
 				if (!roundReset && !roundStarted) {
 					roundReset = true;
 					chooseStartingBallDirectionAndSpeed();
-//					GLabel clickAnywhere = addClickAnywhere();
-					add(clickAnywhere);
-//					System.out.println("Got to here");
+					clickMessage = addClickAnywhere();
+					add(clickMessage);
+					labelVisible = true;
 				}
+				
 				while(roundStarted) {
-//					System.out.println("Round started!");
-					remove(clickAnywhere);
+					if (labelVisible) {
+						remove(clickMessage);
+						labelVisible = false;
+						roundReset = false;
+					}
 					moveBall();
 					checkBrickCollision();
 					checkWallCollision();
@@ -382,7 +392,7 @@ public class Breakout extends GraphicsProgram {
 		/* Returns a GLabel that says click anywhere to launch the ball.
 		 * Call this method between rounds while waiting for mouse click */
 		private GLabel addClickAnywhere() {
-			GLabel clickAnywhere = new GLabel("Click anywhere to launch the ball");
+			GLabel clickAnywhere = new GLabel("Click anywhere to launch the ball. You have " + (N_OF_TURNS - failCounter) + "  lives remaining");
 			clickAnywhere.setFont("Arial-14");
 			clickAnywhere.setLocation((APPLICATION_WIDTH - clickAnywhere.getWidth()) / 2, 200); 
 			clickAnywhere.setColor(Color.BLACK);
